@@ -14,18 +14,18 @@
   added to the page_lookup for this purpose. When in the page_lookup, each write
   will go through the mem_write_ram*_page() functions and set the dirty mask
   appropriately.
-  
+
   Each codeblock also contains a code mask (actually two masks, one for each
   page the block is/may be in), again with each bit representing 64 bytes.
-  
+
   Each page has a list of codeblocks present in it. As each codeblock can span
   up to two pages, two lists are present.
-  
+
   When a codeblock is about to be executed, the code masks are compared with the
   dirty masks for the relevant pages. If either intersect, then
   codegen_check_flush() is called on the affected page(s), and all affected
   blocks are evicted.
-  
+
   The 64 byte granularity appears to work reasonably well for most cases,
   avoiding most unnecessary evictions (eg when code & data are stored in the
   same page).
@@ -38,7 +38,7 @@ typedef struct codeblock_t
           present in two pages.*/
         struct codeblock_t *prev, *next;
         struct codeblock_t *prev_2, *next_2;
-        
+
         uint32_t pc;
         uint32_t _cs;
         uint32_t endpc;
@@ -48,7 +48,7 @@ typedef struct codeblock_t
         int pnt;
         int ins;
         uint64_t page_mask, page_mask2;
-        
+
         uint8_t data[2048];
 } codeblock_t;
 
@@ -99,6 +99,7 @@ typedef struct codegen_timing_t
         void (*block_end)();
 } codegen_timing_t;
 
+extern codegen_timing_t codegen_timing_p6;
 extern codegen_timing_t codegen_timing_pentium;
 extern codegen_timing_t codegen_timing_486;
 

@@ -292,7 +292,7 @@ CPU cpus_WinChip[] =
         {"WinChip 100",  CPU_WINCHIP, 10, 100000000, 2, 0x540, 0x540, 0},
         {"WinChip 120",  CPU_WINCHIP, 11, 120000000, 2, 0x540, 0x540, 0},
         {"WinChip 133",  CPU_WINCHIP, 12, 133333333, 2, 0x540, 0x540, 0},
-        {"WinChip 150",  CPU_WINCHIP, 13, 150000000, 3, 0x540, 0x540, 0},        
+        {"WinChip 150",  CPU_WINCHIP, 13, 150000000, 3, 0x540, 0x540, 0},
         {"WinChip 166",  CPU_WINCHIP, 15, 166666666, 3, 0x540, 0x540, 0},
         {"WinChip 180",  CPU_WINCHIP, 16, 180000000, 3, 0x540, 0x540, 0},
         {"WinChip 200",  CPU_WINCHIP, 17, 200000000, 3, 0x540, 0x540, 0},
@@ -343,6 +343,18 @@ CPU cpus_Pentium[] =
         {"Mobile Pentium MMX 300",  CPU_PENTIUMMMX, 17, 300000000, 5, 0x582, 0x582, 0},
         {"",             -1,        0, 0, 0}
 };
+
+CPU cpus_PentiumII[] =
+{
+        {"Pentium II 233",  CPU_PENTIUMII, 17, 233333333, 4, 0x631, 0x631, 0},
+        {"Pentium II 266",  CPU_PENTIUMII, 17, 266666666, 4, 0x631, 0x631, 0},
+        {"Pentium II 300",  CPU_PENTIUMII, 17, 300000000, 5, 0x631, 0x631, 0},
+        {"Pentium II 333",  CPU_PENTIUMII, 17, 333333333, 5, 0x651, 0x651, 0},
+        {"Pentium II 350",  CPU_PENTIUMII, 17, 350000000, 5, 0x651, 0x651, 0},
+        {"Pentium II 400",  CPU_PENTIUMII, 17, 400000000, 5, 0x651, 0x651, 0},
+        {"Pentium II 450",  CPU_PENTIUMII, 17, 450000000, 5, 0x651, 0x651, 0},
+        {"",             -1,        0, 0, 0}
+};
 #endif
 void cpu_set_edx()
 {
@@ -352,14 +364,14 @@ void cpu_set_edx()
 void cpu_set()
 {
         CPU *cpu_s;
-        
+
         if (!models[model].cpu[cpu_manufacturer].cpus)
         {
                 /*CPU is invalid, set to default*/
                 cpu_manufacturer = 0;
                 cpu = 0;
         }
-        
+
         cpu_s = &models[model].cpu[cpu_manufacturer].cpus[cpu];
 
         CPUID    = cpu_s->cpuid_model;
@@ -370,7 +382,7 @@ void cpu_set()
         hasfpu   = (cpu_s->cpu_type >= CPU_i486DX);
         cpu_iscyrix = (cpu_s->cpu_type == CPU_486SLC || cpu_s->cpu_type == CPU_486DLC || cpu_s->cpu_type == CPU_Cx486S || cpu_s->cpu_type == CPU_Cx486DX || cpu_s->cpu_type == CPU_Cx5x86);
         cpu_16bitbus = (cpu_s->cpu_type == CPU_386SX || cpu_s->cpu_type == CPU_486SLC);
-        if (cpu_s->multi) 
+        if (cpu_s->multi)
            cpu_busspeed = cpu_s->rspeed / cpu_s->multi;
         cpu_multi = cpu_s->multi;
         cpu_hasrdtsc = 0;
@@ -382,7 +394,7 @@ void cpu_set()
            io_sethandler(0x0022, 0x0002, cyrix_read, NULL, NULL, cyrix_write, NULL, NULL, NULL);
         else
            io_removehandler(0x0022, 0x0002, cyrix_read, NULL, NULL, cyrix_write, NULL, NULL, NULL);
-        
+
         pclog("hasfpu - %i\n",hasfpu);
         pclog("is486 - %i  %i\n",is486,cpu_s->cpu_type);
 
@@ -390,7 +402,7 @@ void cpu_set()
         x86_setopcodes(ops_386, ops_386_0f, dynarec_ops_386, dynarec_ops_386_0f);
 #else
         x86_setopcodes(ops_386, ops_386_0f);
-#endif                        
+#endif
 #ifdef DYNAREC
         if (hasfpu)
         {
@@ -472,19 +484,19 @@ void cpu_set()
         }
 
         memset(&msr, 0, sizeof(msr));
-        
+
         switch (cpu_s->cpu_type)
         {
                 case CPU_8088:
                 case CPU_8086:
                 break;
-                
+
                 case CPU_286:
 #ifdef DYNAREC
                 x86_setopcodes(ops_286, ops_286_0f, dynarec_ops_286, dynarec_ops_286_0f);
 #else
                 x86_setopcodes(ops_286, ops_286_0f);
-#endif                        
+#endif
                 timing_rr  = 2;   /*register dest - register src*/
                 timing_rm  = 7;   /*register dest - memory src*/
                 timing_mr  = 7;   /*memory dest   - register src*/
@@ -519,7 +531,7 @@ void cpu_set()
                 timing_bt  = 7-3; /*branch taken*/
                 timing_bnt = 3; /*branch not taken*/
                 break;
-                
+
                 case CPU_486SLC:
                 timing_rr  = 1; /*register dest - register src*/
                 timing_rm  = 3; /*register dest - memory src*/
@@ -531,7 +543,7 @@ void cpu_set()
                 timing_bt  = 6-1; /*branch taken*/
                 timing_bnt = 1; /*branch not taken*/
                 break;
-                
+
                 case CPU_486DLC:
                 timing_rr  = 1; /*register dest - register src*/
                 timing_rm  = 3; /*register dest - memory src*/
@@ -543,7 +555,7 @@ void cpu_set()
                 timing_bt  = 6-1; /*branch taken*/
                 timing_bnt = 1; /*branch not taken*/
                 break;
-                
+
                 case CPU_i486SX:
                 case CPU_i486DX:
                 timing_rr  = 1; /*register dest - register src*/
@@ -570,7 +582,7 @@ void cpu_set()
                 timing_bt  = 3-1; /*branch taken*/
                 timing_bnt = 1; /*branch not taken*/
                 break;
-                
+
                 case CPU_Cx486S:
                 case CPU_Cx486DX:
                 timing_rr  = 1; /*register dest - register src*/
@@ -583,7 +595,7 @@ void cpu_set()
                 timing_bt  = 4-1; /*branch taken*/
                 timing_bnt = 1; /*branch not taken*/
                 break;
-                
+
                 case CPU_Cx5x86:
                 timing_rr  = 1; /*register dest - register src*/
                 timing_rm  = 1; /*register dest - memory src*/
@@ -601,7 +613,7 @@ void cpu_set()
                 x86_setopcodes(ops_386, ops_winchip_0f, dynarec_ops_386, dynarec_ops_winchip_0f);
 #else
                 x86_setopcodes(ops_386, ops_winchip_0f);
-#endif                        
+#endif
                 timing_rr  = 1; /*register dest - register src*/
                 timing_rm  = 2; /*register dest - memory src*/
                 timing_mr  = 3; /*memory dest   - register src*/
@@ -618,7 +630,7 @@ void cpu_set()
                 cpu_CR4_mask = CR4_TSD | CR4_DE | CR4_MCE | CR4_PCE;
                 break;
 
-#ifdef DYNAREC                
+#ifdef DYNAREC
                 case CPU_PENTIUM:
                 x86_setopcodes(ops_386, ops_pentium_0f, dynarec_ops_386, dynarec_ops_pentium_0f);
                 timing_rr  = 1; /*register dest - register src*/
@@ -657,6 +669,26 @@ void cpu_set()
                 cpu_hasCR4 = 1;
                 cpu_CR4_mask = CR4_TSD | CR4_DE | CR4_MCE | CR4_PCE;
                 codegen_timing_set(&codegen_timing_pentium);
+                break;
+
+                case CPU_PENTIUMII:
+                x86_setopcodes(ops_386, ops_pentiummmx_0f, dynarec_ops_386, dynarec_ops_pentiummmx_0f);
+                timing_rr  = 1; /*register dest - register src*/
+                timing_rm  = 2; /*register dest - memory src*/
+                timing_mr  = 3; /*memory dest   - register src*/
+                timing_mm  = 3;
+                timing_rml = 2; /*register dest - memory src long*/
+                timing_mrl = 3; /*memory dest   - register src long*/
+                timing_mml = 3;
+                timing_bt  = 0; /*branch taken*/
+                timing_bnt = 1; /*branch not taken*/
+                cpu_hasrdtsc = 1;
+                msr.fcr = (1 << 8) | (1 << 9) | (1 << 12) |  (1 << 16) | (1 << 19) | (1 << 21);
+                cpu_hasMMX = 1;
+                cpu_hasMSR = 1;
+                cpu_hasCR4 = 1;
+                cpu_CR4_mask = CR4_TSD | CR4_DE | CR4_MCE | CR4_PCE;
+                codegen_timing_set(&codegen_timing_p6);
                 break;
 #endif
 
@@ -721,7 +753,7 @@ void cpu_CPUID()
                 else
                    EAX = 0;
                 break;
-                
+
                 case CPU_WINCHIP:
                 if (!EAX)
                 {
@@ -735,7 +767,7 @@ void cpu_CPUID()
                         else
                         {
                                 EBX = 0x746e6543; /*CentaurHauls*/
-                                ECX = 0x736c7561;                        
+                                ECX = 0x736c7561;
                                 EDX = 0x48727561;
                         }
                 }
@@ -770,6 +802,24 @@ void cpu_CPUID()
                 break;
 
                 case CPU_PENTIUMMMX:
+                if (!EAX)
+                {
+                        EAX = 0x00000001;
+                        EBX = 0x756e6547;
+                        EDX = 0x49656e69;
+                        ECX = 0x6c65746e;
+                }
+                else if (EAX == 1)
+                {
+                        EAX = CPUID;
+                        EBX = ECX = 0;
+                        EDX = CPUID_FPU | CPUID_TSC | CPUID_MSR | CPUID_CMPXCHG8B | CPUID_MMX;
+                }
+                else
+                        EAX = 0;
+                break;
+
+                case CPU_PENTIUMII:
                 if (!EAX)
                 {
                         EAX = 0x00000001;
