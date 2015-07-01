@@ -282,7 +282,7 @@ static void ide_identify(IDE *ide)
 	ide->buffer[6] = 63;  /* Sectors */
 #else
 	ide->buffer[0] = 0x095A;
-	
+
 	if (ide_map[cur_ide[cur_board]] != -1)
 	{
 		ide->buffer[1] = hdc[ide_map[cur_ide[cur_board]]].tracks; /* Cylinders */
@@ -565,7 +565,7 @@ static void loadhd(IDE *ide, int d, const char *fn)
         }
 
         ide->type = IDE_HDD;
-        
+
         rpclog("%i %i %i\n",ide->spt,ide->hpc,ide->skip512);
 }
 #else
@@ -632,7 +632,7 @@ void resetide(void)
 	else
            ide_drives[1].type = IDE_CDROM;
 #else
-	supports_slave = ((romset == ROM_SIS496) || (romset == ROM_REVENGE) || (romset == ROM_ENDEAVOR) || (romset == ROM_430FX) || (romset == ROM_430VX)) ? 1 : 0;
+	supports_slave = ((romset == ROM_SIS496) || (romset == ROM_REVENGE) || (romset == ROM_ENDEAVOR) || (romset == ROM_430FX) || (romset == ROM_430VX) || (romset == ROM_440BX)) ? 1 : 0;
 
 	/* New IDE loading logic:
 	   Keep loading hard disk images, until either all are loaded, ran out of slots, or CD-ROM is enabled and reached its slot.
@@ -715,7 +715,7 @@ done_loading:
 
         cur_ide[0] = 0;
         cur_ide[1] = 2;
-        
+
 //        ide_drives[1].type = IDE_CDROM;
 //        ide_drives[2].type = IDE_CDROM;
 //	ide_drives[3].type = IDE_NONE;
@@ -813,7 +813,7 @@ void writeide(int ide_board, uint16_t addr, uint8_t val)
 //      rpclog("Write IDE %08X %02X %08X %08X\n",addr,val,PC,armregs[12]);
 
         if (ide->type == IDE_NONE && addr != 0x1f6) return;
-        
+
         switch (addr)
         {
         case 0x1F0: /* Data */
@@ -858,7 +858,7 @@ void writeide(int ide_board, uint16_t addr, uint8_t val)
                 dumpregs();
                 exit(-1);
         }*/
-        
+
                 if (cur_ide[ide_board] != ((val>>4)&1)+(ide_board<<1))
                 {
                         cur_ide[ide_board]=((val>>4)&1)+(ide_board<<1);
@@ -879,15 +879,15 @@ void writeide(int ide_board, uint16_t addr, uint8_t val)
 
                         ide = &ide_drives[cur_ide[ide_board]];
                 }
-                                
+
                 ide->head = val & 0xF;
                 ide->lba = val & 0x40;
                 ide_other->head = val & 0xF;
                 ide_other->lba = val & 0x40;
-                
+
                 ide->lba_addr = (ide->lba_addr & 0x0FFFFFF) | ((val & 0xF) << 24);
                 ide_other->lba_addr = (ide_other->lba_addr & 0x0FFFFFF)|((val & 0xF) << 24);
-                                
+
                 ide_irq_update(ide);
                 return;
 
@@ -896,7 +896,7 @@ void writeide(int ide_board, uint16_t addr, uint8_t val)
                 // pclog("IDE command %02X drive %i\n",val,ide.drive);
         ide_irq_lower(ide);
                 ide->command=val;
-                
+
                 // pclog("New IDE command - %02X %i %i\n",ide->command,cur_ide[ide_board],ide_board);
                 ide->error=0;
                 switch (val)
@@ -926,7 +926,7 @@ void writeide(int ide_board, uint16_t addr, uint8_t val)
                         else          pclog("Read Multiple %i sectors from sector %i cylinder %i head %i  %i\n",ide->secount,ide->sector,ide->cylinder,ide->head,ins);
 #endif
                         ide->blockcount = 0;
-                        
+
                 case WIN_READ:
                 case WIN_READ_NORETRY:
                 case WIN_READ_DMA:
@@ -943,7 +943,7 @@ void writeide(int ide_board, uint16_t addr, uint8_t val)
                         idecallback[ide_board]=200*IDE_TIME;
                         timer_update_outstanding();
                         return;
-                        
+
                 case WIN_WRITE_MULTIPLE:
                         if (!ide->blocksize)
                            fatal("Write_MULTIPLE - blocksize = 0\n");
@@ -952,7 +952,7 @@ void writeide(int ide_board, uint16_t addr, uint8_t val)
                         else          pclog("Write Multiple %i sectors to sector %i cylinder %i head %i\n",ide->secount,ide->sector,ide->cylinder,ide->head);
 #endif
                         ide->blockcount = 0;
-                        
+
                 case WIN_WRITE:
                 case WIN_WRITE_NORETRY:
                 /*                        if (ide.secount>1)
@@ -1035,7 +1035,7 @@ void writeide(int ide_board, uint16_t addr, uint8_t val)
                         timer_update_outstanding();
                         ide->pos=0;
                         return;
-                        
+
                 case 0xF0:
                         default:
                 	ide->atastat = READY_STAT | ERR_STAT | DSC_STAT;
@@ -1044,7 +1044,7 @@ void writeide(int ide_board, uint16_t addr, uint8_t val)
 /*                        fatal("Bad IDE command %02X\n", val);*/
                         return;
                 }
-                
+
                 return;
 
         case 0x3F6: /* Device control */
@@ -1089,10 +1089,10 @@ uint8_t readide(int ide_board, uint16_t addr)
         {
         case 0x1F0: /* Data */
                 tempw = readidew(ide_board);
-//                pclog("Read IDEW %04X\n", tempw);                
+//                pclog("Read IDEW %04X\n", tempw);
                 temp = tempw & 0xff;
                 break;
-                
+
         case 0x1F1: /* Error */
 //        pclog("Read error %02X\n",ide.error);
                 temp = ide->error;
@@ -1184,7 +1184,7 @@ uint16_t readidew(int ide_board)
 #endif
 //        return 0xFFFF;
 //        pclog("Read IDEw %04X %04X:%04X %02X %i %i\n",ide->buffer[ide->pos >> 1],CS,pc,opcode,ins, ide->pos);
-        
+
 //if (idedebug) pclog("Read IDEW %08X\n",PC);
 
         temp = ide->buffer[ide->pos >> 1];
@@ -1326,7 +1326,7 @@ void callbackide(int ide_board)
                 fseeko64(ide->hdfile, addr, SEEK_SET);
                 fread(ide->buffer, 512, 1, ide->hdfile);
                 ide->pos=0;
-                
+
                 if (ide_bus_master_read_sector)
                 {
                         if (ide_bus_master_read_sector(ide_board, (uint8_t *)ide->buffer))
@@ -1368,7 +1368,7 @@ void callbackide(int ide_board)
                 {
 //                        pclog("Read multiple int\n");
                         ide_irq_raise(ide);
-                }                        
+                }
                 ide->blockcount++;
                 if (ide->blockcount >= ide->blocksize)
                    ide->blockcount = 0;
@@ -1400,7 +1400,7 @@ void callbackide(int ide_board)
                 readflash=1;
 #endif
                 return;
-                
+
         case WIN_WRITE_DMA:
                 if (IDE_DRIVE_IS_CDROM(ide)) {
                         goto abort_cmd;
@@ -1416,7 +1416,7 @@ void callbackide(int ide_board)
                                 addr = ide_get_sector(ide) * 512;
                                 fseeko64(ide->hdfile, addr, SEEK_SET);
                                 fwrite(ide->buffer, 512, 1, ide->hdfile);
-                                
+
                                 ide->atastat = DRQ_STAT | READY_STAT | DSC_STAT;
 
                                 ide->secount = (ide->secount - 1) & 0xff;
@@ -1546,7 +1546,7 @@ void callbackide(int ide_board)
 #endif
                 ide_irq_raise(ide);
                 return;
-                
+
         case WIN_SETIDLE1: /* Idle */
         case 0xEF:
                 goto abort_cmd;
@@ -1800,7 +1800,7 @@ static void atapicommand(int ide_board)
                 idecallback[ide_board]=60*IDE_TIME;
                 ide->packlen=len;
                 return;
-                
+
         case GPCMD_READ_CD:
                 if (!atapi->ready()) { atapi_notready(ide); return; }
 //                pclog("Read CD : start LBA %02X%02X%02X%02X Length %02X%02X%02X Flags %02X\n",idebufferb[2],idebufferb[3],idebufferb[4],idebufferb[5],idebufferb[6],idebufferb[7],idebufferb[8],idebufferb[9]);
@@ -1891,7 +1891,7 @@ static void atapicommand(int ide_board)
                 for (c=0;c<4;c++) idebufferb[c+4]=idebufferb[c+2];
                 idebufferb[0]=1; /*2048 bytes user data*/
                 idebufferb[1]=idebufferb[2]=idebufferb[3]=0;
-                
+
                 ide->packetstatus=3;
                 ide->cylinder=8;
                 ide->secount=2;
@@ -1899,7 +1899,7 @@ static void atapicommand(int ide_board)
                 idecallback[ide_board]=60*IDE_TIME;
                 ide->packlen=8;
                 return;
-                
+
         case GPCMD_MODE_SENSE_10:
 //                output=3;
 //                pclog("Mode sense - ready?\n");
@@ -1990,7 +1990,7 @@ static void atapicommand(int ide_board)
                 ide->packetstatus=2;
                 idecallback[ide_board]=50*IDE_TIME;
                 break;
-                
+
         case GPCMD_READ_SUBCHANNEL:
                 if (!atapi->ready()) { /*pclog("Read subchannel not ready\n"); */atapi_notready(ide); return; }
                 temp=idebufferb[2]&0x40;
@@ -2056,7 +2056,7 @@ static void atapicommand(int ide_board)
                 ide->packetstatus=2;
                 idecallback[ide_board]=50*IDE_TIME;
                 break;
-                
+
         case GPCMD_INQUIRY:
                 idebufferb[0] = 5; /*CD-ROM*/
                 idebufferb[1] = 0x80; /*Removable*/
@@ -2125,7 +2125,7 @@ static void atapicommand(int ide_board)
                 idecallback[ide_board]=60*IDE_TIME;
                 ide->packlen=len;
                 break;
-                
+
         case GPCMD_SEND_DVD_STRUCTURE:
         default:
                 ide->atastat = READY_STAT | ERR_STAT;    /*CHECK CONDITION*/
@@ -2138,7 +2138,7 @@ static void atapicommand(int ide_board)
                 ide->packetstatus=0x80;
                 idecallback[ide_board]=50*IDE_TIME;
                 break;
-                
+
 /*                default:
                 pclog("Bad ATAPI command %02X\n",idebufferb[0]);
                 pclog("Packet data :\n");
@@ -2160,7 +2160,7 @@ static void callreadcd(IDE *ide)
         }
 //        pclog("Continue readcd! %i blocks left\n",ide->cdlen);
         ide->atastat = BUSY_STAT;
-        
+
         atapi->readsector((uint8_t *) ide->buffer, ide->cdpos);
 #ifndef RPCEMU_IDE
                 readflash=1;
@@ -2253,7 +2253,7 @@ void ide_sec_disable()
 
 void ide_init()
 {
-	supports_slave = ((romset == ROM_SIS496) || (romset == ROM_REVENGE) || (romset == ROM_ENDEAVOR) || (romset == ROM_430FX) || (romset == ROM_430VX)) ? 1 : 0;
+	supports_slave = ((romset == ROM_SIS496) || (romset == ROM_REVENGE) || (romset == ROM_ENDEAVOR) || (romset == ROM_430FX) || (romset == ROM_430VX) || (romset == ROM_440BX)) ? 1 : 0;
 
         ide_pri_enable();
         if (supports_slave)
@@ -2265,7 +2265,7 @@ void ide_init()
 		ide_sec_disable();
 	}
         ide_bus_master_read_sector = ide_bus_master_write_sector = NULL;
-        
+
         timer_add(ide_callback_pri, &idecallback[0], &idecallback[0],  NULL);
         if (supports_slave)  timer_add(ide_callback_sec, &idecallback[1], &idecallback[1],  NULL);
 }

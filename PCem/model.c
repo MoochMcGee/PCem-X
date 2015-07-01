@@ -15,6 +15,7 @@
 #include "i430fx.h"
 #include "i430lx.h"
 #include "i430vx.h"
+#include "i440bx.h"
 #include "ide.h"
 #include "intel.h"
 #include "intel_flash.h"
@@ -35,6 +36,7 @@
 #include "pci.h"
 #include "pic.h"
 #include "piix.h"
+#include "piix4.h"
 #include "pit.h"
 #include "ps1.h"
 #include "serial.h"
@@ -64,6 +66,7 @@ void     at_i430fx_init();
 void     at_i430vx_init();
 void     at_batman_init();
 void   at_endeavor_init();
+void     at_i440bx_init();
 
 int model;
 
@@ -78,18 +81,18 @@ MODEL models[] =
         {"IBM XT",              ROM_IBMXT,     { "Stock", cpus_8088,	"286 card",  cpus_286,   "",  NULL},         0,      xt_init},
         {"IBM PCjr",            ROM_IBMPCJR,   { "",      cpus_pcjr,    "",    NULL,         "",      NULL},         1,    pcjr_init},
         {"Generic XT clone",    ROM_GENXT,     { "Stock", cpus_8088,	"286 card",  cpus_286,   "",  NULL},         0,      xt_init},
-        {"DTK XT clone",        ROM_DTKXT,     { "Stock", cpus_8088,	"286 card",  cpus_286,   "",  NULL},         0,      xt_init},        
+        {"DTK XT clone",        ROM_DTKXT,     { "Stock", cpus_8088,	"286 card",  cpus_286,   "",  NULL},         0,      xt_init},
         {"Tandy 1000",          ROM_TANDY,     { "Stock", cpus_8088,	"286 card",  cpus_286,   "",  NULL},         1, tandy1k_init},
         {"Amstrad PC1512",      ROM_PC1512,    { "",      cpus_pc1512,  "",    NULL,         "",      NULL},         1,     ams_init},
         {"Sinclair PC200",      ROM_PC200,     { "",      cpus_8086,    "",    NULL,         "",      NULL},         1,     ams_init},
         {"Euro PC",             ROM_EUROPC,    { "",      cpus_8086,    "",    NULL,         "",      NULL},         0,  europc_init},
-        {"Olivetti M24",        ROM_OLIM24,    { "",      cpus_8086,    "",    NULL,         "",      NULL},         1,  olim24_init},        
+        {"Olivetti M24",        ROM_OLIM24,    { "",      cpus_8086,    "",    NULL,         "",      NULL},         1,  olim24_init},
         {"Amstrad PC1640",      ROM_PC1640,    { "",      cpus_8086,    "",    NULL,         "",      NULL},         1,     ams_init},
-        {"Amstrad PC2086",      ROM_PC2086,    { "",      cpus_8086,    "",    NULL,         "",      NULL},         1,     ams_init},        
+        {"Amstrad PC2086",      ROM_PC2086,    { "",      cpus_8086,    "",    NULL,         "",      NULL},         1,     ams_init},
         {"Amstrad PC3086",      ROM_PC3086,    { "",      cpus_8086,    "",    NULL,         "",      NULL},         1,     ams_init},
         {"IBM AT",              ROM_IBMAT,     { "",      cpus_ibmat,   "",    NULL,         "",      NULL},         0,      at_init},
-        {"Commodore PC 30 III", ROM_CMDPC30,   { "",      cpus_286,     "",    NULL,         "",      NULL},         0,      at_init},        
-        {"AMI 286 clone",       ROM_AMI286,    { "",      cpus_286,     "",    NULL,         "",      NULL},         0,      at_neat_init},        
+        {"Commodore PC 30 III", ROM_CMDPC30,   { "",      cpus_286,     "",    NULL,         "",      NULL},         0,      at_init},
+        {"AMI 286 clone",       ROM_AMI286,    { "",      cpus_286,     "",    NULL,         "",      NULL},         0,      at_neat_init},
         {"DELL System 200",     ROM_DELL200,   { "",      cpus_286,     "",    NULL,         "",      NULL},         0,           at_init},
         {"IBM PS/1 model 2011", ROM_IBMPS1_2011, { "",      cpus_286,     "",    NULL,         "",      NULL},         1,          ps1_init},
         {"Acer 386SX25/N",      ROM_ACER386,   { "Intel", cpus_acer,    "",    NULL,         "",      NULL},         1, at_acer386sx_init},
@@ -107,6 +110,7 @@ MODEL models[] =
         {"Intel Advanced/EV",   ROM_ENDEAVOR,  { "Intel", cpus_PentiumS5,"IDT", cpus_WinChip, "",      NULL},         0,  at_endeavor_init},
         {"Award 430FX PCI",     ROM_430FX,     { "Intel", cpus_PentiumS5,"IDT", cpus_WinChip, "",      NULL},         0,    at_i430fx_init},
         {"Award 430VX PCI",     ROM_430VX,     { "Intel", cpus_Pentium, "IDT", cpus_WinChip, "",      NULL},         0,    at_i430vx_init},
+        {"440BX PCI",           ROM_440BX,     { "Intel", cpus_PentiumII, "", NULL, "",      NULL},         0,    at_i440bx_init},
 #else
         {"Intel Advanced/EV",   ROM_ENDEAVOR,  { "IDT", cpus_WinChip,   "",    NULL,         "",      NULL},         0,  at_endeavor_init},
         {"Award 430FX PCI",     ROM_430FX,     { "IDT", cpus_WinChip,   "",    NULL,         "",      NULL},         0,  at_i430fx_init},
@@ -128,14 +132,14 @@ int model_getromset()
 int model_getmodel(int romset)
 {
 	int c = 0;
-	
+
 	while (models[c].id != -1)
 	{
 		if (models[c].id == romset)
 			return c;
 		c++;
 	}
-	
+
 	return 0;
 }
 
@@ -354,10 +358,20 @@ void at_i430vx_init()
         um8669f_init();
 }
 
+void at_i440bx_init()
+{
+        at_init();
+        mouse_serial_init();
+        pci_init(PCI_CONFIG_TYPE_1, 0, 31);
+        i440bx_init();
+        piix4_init(7);
+        um8669f_init();
+}
+
 void model_init()
 {
         pclog("Initting as %s\n", model_getname());
         io_init();
-        
+
         models[model].init();
 }

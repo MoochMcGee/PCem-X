@@ -1,11 +1,11 @@
 /*um8669f :
-        
+
   aa to 108 unlocks
   next 108 write is register select (Cx?)
   data read/write to 109
   55 to 108 locks
-  
-  
+
+
 
 
 C0
@@ -83,7 +83,7 @@ void um8669f_write(uint16_t port, uint8_t val, void *priv)
 			if (um8669f_curreg == 0xC2)
 			{
 				/* Make sure to invert this. */
-				if (romset ==  ROM_430VX)
+				if (romset ==  ROM_430VX || romset == ROM_440BX)
 				{
 					pclog("Setting DENSEL polarity to: %i (before: %i)\n", (val & 4 ? 1 : 0), densel_polarity);
 					densel_polarity = val & 4 ? 0 : 1;
@@ -101,7 +101,7 @@ void um8669f_write(uint16_t port, uint8_t val, void *priv)
 	                        if (um8669f_regs[0xc0] & 1)
         	                   fdc_add();
 			}
-                           
+
 			if ((um8669f_curreg == 0xc0) || (um8669f_curreg == 0xc1) || (um8669f_curreg == 0xc3))
 			{
 	                        if (um8669f_regs[0xc0] & 2)
@@ -117,7 +117,7 @@ void um8669f_write(uint16_t port, uint8_t val, void *priv)
                                 	        case 3: serial1_set(0x2e8, 4); break;
 	                                }
 	                        }
-                        
+
 	                        if (um8669f_regs[0xc0] & 4)
         	                {
                 	                temp = (um8669f_regs[0xc3] & 4) ? 0 : 1; /*might be & 8*/
@@ -131,10 +131,10 @@ void um8669f_write(uint16_t port, uint8_t val, void *priv)
         	                                case 3: serial2_set(0x2e8, 3); break;
                 	                }
 	                        }
-                
+
 	                        mouse_serial_init();
 			}
-                        
+
 			if (um8669f_curreg == 0xc3)
 			{
 	                        lpt1_remove();
@@ -156,7 +156,7 @@ uint8_t um8669f_read(uint16_t port, void *priv)
         // pclog("um8669f_read : port=%04x reg %02X locked=%i\n", port, um8669f_curreg, um8669f_locked);
         if (um8669f_locked)
            return 0xff;
-        
+
         if (port == 0x108)
            return um8669f_curreg; /*???*/
         else
@@ -165,7 +165,7 @@ uint8_t um8669f_read(uint16_t port, void *priv)
 
 void um8669f_init()
 {
-	if (romset == ROM_430VX)
+	if (romset == ROM_430VX || romset == ROM_440BX)
 	{
 		um8669f_regs[0xC2] = 0xE5;
 	}

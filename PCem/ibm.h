@@ -307,7 +307,7 @@ enum
         ROM_PC200,
         ROM_PC1640,
         ROM_PC2086,
-        ROM_PC3086,        
+        ROM_PC3086,
         ROM_IBMAT,
         ROM_CMDPC30,
         ROM_AMI286,
@@ -328,7 +328,9 @@ enum
         ROM_ENDEAVOR,
         ROM_REVENGE,
         ROM_430FX,
-        
+
+        ROM_440BX,
+
         ROM_MAX
 };
 
@@ -354,7 +356,7 @@ enum
         GFX_N9_9FX,     /*S3 764/Trio64 (Number Nine 9FX)*/
         GFX_VIRGE,      /*S3 Virge*/
         GFX_TGUI9440,   /*Trident TGUI9440*/
-        GFX_VGA,        /*IBM VGA*/        
+        GFX_VGA,        /*IBM VGA*/
         GFX_VGAEDGE16,  /*ATI VGA Edge-16 (18800-1)*/
         GFX_VGACHARGER, /*ATI VGA Charger (28800-5)*/
         GFX_OTI067,     /*Oak OTI-067*/
@@ -370,7 +372,7 @@ enum
 	GFX_CL_GD5446,
 	GFX_SUPEREGA,
 	GFX_RIVA128,
-        
+
         GFX_MAX
 };
 
