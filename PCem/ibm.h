@@ -295,7 +295,7 @@ enum
         ROM_PC200,
         ROM_PC1640,
         ROM_PC2086,
-        ROM_PC3086,        
+        ROM_PC3086,
         ROM_AMIXT,      /*XT Clone with AMI BIOS*/
 	ROM_LTXT,
 	ROM_LXT3,
@@ -307,9 +307,6 @@ enum
         ROM_CMDPC30,
         ROM_AMI286,
         ROM_DELL200,
-#ifdef BROKEN_CHIPSETS
-        ROM_MISC286,
-#endif
         ROM_IBMPS1_2011,
         ROM_DESKPRO_386,
         ROM_IBMAT386,
@@ -348,7 +345,7 @@ enum
 	ROM_VPC2007,
 	ROM_GOLIATH,
 #endif
-        
+
         ROM_MAX
 };
 
@@ -370,7 +367,7 @@ enum
         GFX_N9_9FX,     /*S3 764/Trio64 (Number Nine 9FX)*/
         GFX_VIRGE,      /*S3 Virge*/
         GFX_TGUI9440,   /*Trident TGUI9440*/
-        GFX_VGA,        /*IBM VGA*/        
+        GFX_VGA,        /*IBM VGA*/
         GFX_VGAEDGE16,  /*ATI VGA Edge-16 (18800-1)*/
         GFX_VGACHARGER, /*ATI VGA Charger (28800-5)*/
         GFX_OTI067,     /*Oak OTI-067*/
@@ -398,7 +395,7 @@ enum
 	GFX_VPC_TRIO64,		/* Virtual PC Trio64 */
 	GFX_PHOENIX_VISION964, /*S3 964/Vision964 (Phoenix/miro cyrstal)*/
 	GFX_RIVA128,
-        
+
         GFX_MAX
 };
 
@@ -526,7 +523,7 @@ enum
         NET_NONE = 0,
         NET_NE2000,
         NET_RTL8029AS,
-        
+
         NET_MAX
 };
 
@@ -537,7 +534,7 @@ extern int nmi;
 extern int times;
 
 
-extern double isa_timing, bus_timing;
+extern double isa_timing, bus_timing, agp_timing;
 
 extern int frame;
 

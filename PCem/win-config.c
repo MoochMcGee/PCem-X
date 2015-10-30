@@ -83,7 +83,7 @@ static BOOL CALLBACK config_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPAR
                         {
                                 SendMessage(h, CB_ADDSTRING, 0, (LPARAM)(LPCSTR)s);
                                 if (video_new_to_old(c) == gfxcard)
-                                        SendMessage(h, CB_SETCURSEL, d, 0);                                
+                                        SendMessage(h, CB_SETCURSEL, d, 0);
 
                                 d++;
                         }
@@ -125,7 +125,7 @@ static BOOL CALLBACK config_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPAR
                                 break;
 
                         settings_sound_to_list[c] = d;
-                        
+
                         if (sound_card_available(c))
                         {
                                 SendMessage(h, CB_ADDSTRING, 0, (LPARAM)(LPCSTR)s);
@@ -159,7 +159,7 @@ static BOOL CALLBACK config_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPAR
                         c++;
                 }
                 SendMessage(h, CB_SETCURSEL, settings_network_to_list[network_card_current], 0);
-                
+
                 h=GetDlgItem(hdlg, IDC_CHECK3);
                 SendMessage(h, BM_SETCHECK, GAMEBLASTER, 0);
 
@@ -168,7 +168,7 @@ static BOOL CALLBACK config_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPAR
 
                 h=GetDlgItem(hdlg, IDC_CHECKSSI);
                 SendMessage(h, BM_SETCHECK, SSI2001, 0);
-                
+
                 h=GetDlgItem(hdlg, IDC_CHECK2);
                 SendMessage(h, BM_SETCHECK, slowega, 0);
 
@@ -261,7 +261,9 @@ static BOOL CALLBACK config_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPAR
                 SendMessage(h, CB_ADDSTRING, 0, (LPARAM)(LPCSTR)"Fast 16-bit");
                 SendMessage(h, CB_ADDSTRING, 0, (LPARAM)(LPCSTR)"Slow VLB/PCI");
                 SendMessage(h, CB_ADDSTRING, 0, (LPARAM)(LPCSTR)"Mid  VLB/PCI");
-                SendMessage(h, CB_ADDSTRING, 0, (LPARAM)(LPCSTR)"Fast VLB/PCI");                
+                SendMessage(h, CB_ADDSTRING, 0, (LPARAM)(LPCSTR)"Fast VLB/PCI");
+                SendMessage(h, CB_ADDSTRING, 0, (LPARAM)(LPCSTR)"AGP 2x");
+                SendMessage(h, CB_ADDSTRING, 0, (LPARAM)(LPCSTR)"AGP 4x");
                 SendMessage(h, CB_SETCURSEL, video_speed, 0);
 
                 h = GetDlgItem(hdlg, IDC_MEMSPIN);
@@ -274,13 +276,13 @@ static BOOL CALLBACK config_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPAR
                         EnableWindow(h, TRUE);
                 else
                         EnableWindow(h, FALSE);
-                
+
                 h = GetDlgItem(hdlg, IDC_CONFIGURESND);
                 if (sound_card_has_config(sound_card_current))
                         EnableWindow(h, TRUE);
                 else
                         EnableWindow(h, FALSE);
-                        
+
                 h = GetDlgItem(hdlg, IDC_CONFIGURENET);
                 if (network_card_has_config(network_card_current))
                         EnableWindow(h, TRUE);
@@ -288,7 +290,7 @@ static BOOL CALLBACK config_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPAR
                         EnableWindow(h, FALSE);
 
                 return TRUE;
-                
+
                 case WM_COMMAND:
                 switch (LOWORD(wParam))
                 {
@@ -301,8 +303,8 @@ static BOOL CALLBACK config_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPAR
 				MessageBox(NULL, "Invalid memory size\nMemory must be between 1 and 768 MB", "PCem-X", MB_OK);
 				break;
 			}
-			
-			
+
+
                         h = GetDlgItem(hdlg, IDC_COMBO1);
                         temp_model = listtomodel[SendMessage(h, CB_GETCURSEL, 0, 0)];
 
@@ -419,11 +421,11 @@ static BOOL CALLBACK config_dlgproc(HWND hdlg, UINT message, WPARAM wParam, LPAR
                         cpu_manufacturer = temp_cpu_m;
                         cpu = temp_cpu;
                         cpu_set();
-                        
+
                         h = GetDlgItem(hdlg, IDC_COMBOCHC);
                         cache=SendMessage(h, CB_GETCURSEL, 0, 0);
                         mem_updatecache();
-                        
+
                         saveconfig();
 
                         speedchanged();
@@ -439,15 +441,15 @@ case IDC_COMBO1:
                         {
                                 h = GetDlgItem(hdlg,IDC_COMBO1);
                                 temp_model = listtomodel[SendMessage(h,CB_GETCURSEL,0,0)];
-                                
+
                                 /*Enable/disable gfxcard list*/
                                 h = GetDlgItem(hdlg, IDC_COMBOVID);
                                 if (!models[temp_model].fixed_gfxcard)
                                 {
                                         char *s = video_card_getname(video_old_to_new(gfxcard));
-                                        
+
                                         EnableWindow(h, TRUE);
-                                        
+
                                         c = 0;
                                         while (1)
                                         {
@@ -460,7 +462,7 @@ case IDC_COMBO1:
                                 }
                                 else
                                         EnableWindow(h, FALSE);
-                                
+
                                 /*Rebuild manufacturer list*/
                                 h = GetDlgItem(hdlg, IDC_COMBOCPUM);
                                 temp_cpu_m = SendMessage(h, CB_GETCURSEL, 0, 0);
@@ -508,7 +510,7 @@ case IDC_COMBO1:
                                 temp_model = listtomodel[SendMessage(h, CB_GETCURSEL, 0, 0)];
                                 h = GetDlgItem(hdlg, IDC_COMBOCPUM);
                                 temp_cpu_m = SendMessage(h, CB_GETCURSEL, 0, 0);
-                                
+
                                 /*Rebuild CPU list*/
                                 h=GetDlgItem(hdlg, IDC_COMBO3);
                                 temp_cpu = SendMessage(h, CB_GETCURSEL, 0, 0);
@@ -534,7 +536,7 @@ case IDC_COMBO1:
                                 SendMessage(h, BM_SETCHECK, ((cpu_flags & CPU_SUPPORTS_DYNAREC) && temp_dynarec) || (cpu_flags & CPU_REQUIRES_DYNAREC), 0);
                         }
                         break;
-                        
+
                         case IDC_COMBO3:
                         if (HIWORD(wParam) == CBN_SELCHANGE)
                         {
@@ -561,49 +563,49 @@ case IDC_COMBO1:
                         case IDC_CONFIGUREVID:
                         h = GetDlgItem(hdlg, IDC_COMBOVID);
                         SendMessage(h, CB_GETLBTEXT, SendMessage(h, CB_GETCURSEL, 0, 0), (LPARAM)temp_str);
-                        
+
                         deviceconfig_open(hdlg, (void *)video_card_getdevice(video_card_getid(temp_str)));
                         break;
-                        
+
                         case IDC_COMBOVID:
                         h = GetDlgItem(hdlg, IDC_COMBOVID);
                         SendMessage(h, CB_GETLBTEXT, SendMessage(h, CB_GETCURSEL, 0, 0), (LPARAM)temp_str);
                         gfx = video_card_getid(temp_str);
-                        
+
                         h = GetDlgItem(hdlg, IDC_CONFIGUREVID);
                         if (video_card_has_config(gfx))
                                 EnableWindow(h, TRUE);
                         else
                                 EnableWindow(h, FALSE);
-                        break;                              
+                        break;
 
                         case IDC_CONFIGURESND:
                         h = GetDlgItem(hdlg, IDC_COMBOSND);
                         temp_sound_card_current = settings_list_to_sound[SendMessage(h, CB_GETCURSEL, 0, 0)];
-                        
+
                         deviceconfig_open(hdlg, (void *)sound_card_getdevice(temp_sound_card_current));
                         break;
-                        
+
                         case IDC_COMBOSND:
                         h = GetDlgItem(hdlg, IDC_COMBOSND);
                         temp_sound_card_current = settings_list_to_sound[SendMessage(h, CB_GETCURSEL, 0, 0)];
-                        
+
                         h = GetDlgItem(hdlg, IDC_CONFIGURESND);
                         if (sound_card_has_config(temp_sound_card_current))
                                 EnableWindow(h, TRUE);
                         else
                                 EnableWindow(h, FALSE);
-                        break;                                
+                        break;
 
                         case IDC_COMBOFDA:
                         h = GetDlgItem(hdlg, IDC_COMBOFDA);
                         temp_fdtype_a_current = SendMessage(h, CB_GETCURSEL, 0, 0);
-                        break;                                
+                        break;
 
                         case IDC_COMBOFDB:
                         h = GetDlgItem(hdlg, IDC_COMBOFDB);
                         temp_fdtype_b_current = SendMessage(h, CB_GETCURSEL, 0, 0);
-                        break;                                
+                        break;
 
                         case IDC_CONFIGURENET:
                         h = GetDlgItem(hdlg, IDC_COMBONET);
@@ -625,6 +627,20 @@ case IDC_COMBO1:
 
 			case IDC_CONFIGUREVOODOO:
 			deviceconfig_open(hdlg, (void *)&voodoo_device);
+                }
+                break;
+                case WM_VSCROLL:
+                switch(LOWORD(wParam))
+                {
+                  case SB_THUMBTRACK:
+                  {
+                    static int pos;
+
+                    ScrollWindowEx(hdlg, 0, pos - HIWORD(wParam), NULL, NULL, NULL, NULL, SW_SCROLLCHILDREN | SW_INVALIDATE | SW_ERASE);
+
+                    pos = HIWORD(wParam);
+                    break;
+                  }
                 }
                 break;
         }

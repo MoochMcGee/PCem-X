@@ -129,21 +129,21 @@ int video_card_getid(char *s)
                         return c;
                 c++;
         }
-        
+
         return 0;
 }
 
 int video_old_to_new(int card)
 {
         int c = 0;
-        
+
         while (video_cards[c].device)
         {
                 if (video_cards[c].legacy_id == card)
                         return c;
                 c++;
         }
-        
+
         return 0;
 }
 
@@ -197,6 +197,9 @@ Fast VLB/PCI -
         B = 3 bus clocks
         W = 3 bus clocks
         L = 4 bus clocks
+
+AGP 2x is basically Fast VLB/PCI with a multiplier of 2 on the bus speed.
+And AGP 4x is the same thing, except with a multiplier of 4.
 */
 
 enum
@@ -206,14 +209,16 @@ enum
 };
 
 int video_speed = 0;
-int video_timing[6][4] =
+int video_timing[8][5] =
 {
-        {VIDEO_ISA, 8, 16, 32},
-        {VIDEO_ISA, 6,  8, 16},
-        {VIDEO_ISA, 3,  3,  6},
-        {VIDEO_BUS, 4,  8, 16},
-        {VIDEO_BUS, 4,  5, 10},
-        {VIDEO_BUS, 3,  3,  4}
+    {VIDEO_ISA, 8, 16, 32, 1},
+    {VIDEO_ISA, 6,  8, 16, 1},
+    {VIDEO_ISA, 3,  3,  6, 1},
+    {VIDEO_BUS, 4,  8, 16, 1},
+    {VIDEO_BUS, 4,  5, 10, 1},
+    {VIDEO_BUS, 3,  3,  4, 1},
+    {VIDEO_BUS, 3,  3,  4, 2},
+    {VIDEO_BUS, 3,  3,  4, 4}
 };
 
 void video_updatetiming()
@@ -226,9 +231,10 @@ void video_updatetiming()
         }
         else
         {
-                video_timing_b = (int)(bus_timing * video_timing[video_speed][1]);
-                video_timing_w = (int)(bus_timing * video_timing[video_speed][2]);
-                video_timing_l = (int)(bus_timing * video_timing[video_speed][3]);
+                agp_timing = bus_timing / video_timing[video_speed][4];
+                video_timing_b = (int)(agp_timing * video_timing[video_speed][1]);
+                video_timing_w = (int)(agp_timing * video_timing[video_speed][2]);
+                video_timing_l = (int)(agp_timing * video_timing[video_speed][3]);
         }
         if (cpu_16bitbus)
            video_timing_l = video_timing_w * 2;

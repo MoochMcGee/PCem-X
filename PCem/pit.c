@@ -22,7 +22,7 @@ int displine;
 
 double PITCONST;
 double cpuclock;
-double isa_timing, bus_timing;
+double isa_timing, bus_timing, agp_timing;
 
 int firsttime=1;
 void setpitclock(double clock)
@@ -225,7 +225,7 @@ void pit_set_gate(int t, int gate)
                         pit.c[t] = (int)(((l - 1) << TIMER_SHIFT) * PITCONST * 3.0d);
                         pit_set_out(t, 1);
                         pit.thit[t] = 0;
-                }                
+                }
                 pit.enabled[t] = gate;
                 break;
                 case 3: /*Square wave mode*/
@@ -336,7 +336,7 @@ int pit_get_timer_0()
                 read <<= 1;
         return read;
 }
-        
+
 static int pit_read_timer(int t)
 {
         timer_clock();
@@ -359,7 +359,7 @@ static int pit_read_timer(int t)
                 return pit.count[t] + 1;
         return pit.count[t];
 }
-        
+
 extern int ins;
 void pit_write(uint16_t addr, uint8_t val, void *priv)
 {
@@ -368,7 +368,7 @@ void pit_write(uint16_t addr, uint8_t val, void *priv)
         // cycles -= (int)PITCONST;
 	cycles -= PITCONST;
 //        /*if (val != 0x40) */pclog("Write PIT %04X %02X %04X:%08X %i %i\n",addr,val,CS,pc,ins, pit.gate[0]);
-        
+
         switch (addr&3)
         {
                 case 3: /*CTRL*/
@@ -455,7 +455,7 @@ void pit_write(uint16_t addr, uint8_t val, void *priv)
                         pit.l[t]|=(val<<8);
                         pit_load(t);
 //                        pit.c[t]=pit.l[t]*PITCONST;
-//                        pclog("%04X %f\n",pit.l[t],pit.c[t]);                        
+//                        pclog("%04X %f\n",pit.l[t],pit.c[t]);
 //                        pit.thit[t]=0;
                         pit.wm[t]=3;
 //                        if (!t)
@@ -485,7 +485,7 @@ uint8_t pit_read(uint16_t addr, void *priv)
 {
         int t;
         uint8_t temp;
-        // cycles -= (int)PITCONST;        
+        // cycles -= (int)PITCONST;
 	cycles -= PITCONST;
 //        printf("Read PIT %04X ",addr);
         switch (addr&3)
@@ -548,7 +548,7 @@ void pit_timer_over(void *p)
 {
         int timer = (int) p;
 //        pclog("pit_timer_over %i\n", timer);
-        
+
         pit_over(timer);
 }
 
@@ -556,10 +556,10 @@ void pit_clock(int t)
 {
         if (pit.thit[t] || !pit.enabled[t])
                 return;
-        
+
         if (pit.using_timer[t])
                 return;
-                
+
         pit.count[t] -= (pit.m[t] == 3) ? 2 : 1;
         if (!pit.count[t])
                 pit_over(t);
@@ -567,7 +567,7 @@ void pit_clock(int t)
 
 void pit_set_using_timer(int t, int using_timer)
 {
-//        pclog("pit_set_using_timer: t=%i using_timer=%i\n", t, using_timer);        
+//        pclog("pit_set_using_timer: t=%i using_timer=%i\n", t, using_timer);
         timer_process();
         if (pit.using_timer[t] && !using_timer)
                 pit.count[t] = pit_read_timer(t);
@@ -639,7 +639,7 @@ void pit_init()
         timer_add(pit_timer_over, &pit.c[0], &pit.running[0], (void *)0);
         timer_add(pit_timer_over, &pit.c[1], &pit.running[1], (void *)1);
         timer_add(pit_timer_over, &pit.c[2], &pit.running[2], (void *)2);
-                
+
         pit_set_out_func(0, pit_irq0_timer);
         pit_set_out_func(1, pit_null_timer);
         pit_set_out_func(2, pit_speaker_timer);
