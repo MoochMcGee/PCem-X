@@ -111,7 +111,15 @@ static uint8_t riva128_pfb_read(uint32_t addr, void *p)
 
   switch(addr)
   {
-  case 0x100000: ret = 0x06; break;
+  case 0x100000:
+  switch(riva128->memory_size)
+  {
+  case 1: ret = 0; break;
+  case 2: ret = 1; break;
+  case 4: ret = 2; break;
+  }
+  ret |= 0x04;
+  break;
   case 0x100200: ret = riva128->pfb.config_0 & 0xff; break;
   case 0x100201: ret = (riva128->pfb.config_0 >> 8) & 0xff; break;
   case 0x100202: ret = (riva128->pfb.config_0 >> 16) & 0xff; break;
@@ -730,6 +738,14 @@ static device_config_t riva128_config[] =
     .type = CONFIG_SELECTION,
     .selection =
     {
+      {
+        .description = "1 MB",
+        .value = 1
+      },
+      {
+        .description = "2 MB",
+        .value = 2
+      },
       {
         .description = "4 MB",
         .value = 4
