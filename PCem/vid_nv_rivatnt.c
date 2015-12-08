@@ -56,9 +56,51 @@ typedef struct rivatnt_t
     uint8_t mode;
   } rma;
 
+  uint8_t ddc_read;
+  uint16_t edid_addr;
+
 } rivatnt_t;
 
 static uint8_t rivatnt_pci_read(int func, int addr, void *p);
+
+int edid[128] =
+{
+  0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x01, 0x03, 0x81, 0x00, 0x00, 0x78,
+  0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0xff, 0xfe, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09,
+};
+
+static uint8_t rivatnt_read_edid(void* p)
+{
+  rivatnt_t *rivatnt = (rivatnt_t *)p;
+  svga_t *svga = &rivatnt->svga;
+  uint8_t ret = 0;
+
+#ifndef RELEASE_BUILD
+  pclog("RIVA TNT EDID read %02X %04X:%08X\n", rivatnt->edid_addr >> 3, CS, pc);
+#endif
+
+  ret = edid[rivatnt->edid_addr >> 3];
+  ret >>= (rivatnt->edid_addr & 7);
+  ret &= 1;
+
+  rivatnt->edid_addr = (rivatnt->edid_addr + 1) & 0x3ff;
+
+  return ret;
+}
 
 static uint8_t rivatnt_pmc_read(uint32_t addr, void *p)
 {
@@ -371,6 +413,14 @@ static uint8_t rivatnt_in(uint16_t addr, void *p)
   break;
   case 0x3D5:
   ret = svga->crtc[svga->crtcreg];
+  switch(svga->crtcreg)
+  {
+  case 0x3e:
+  rivatnt->ddc_read ^= (1 << 2);
+  rivatnt->ddc_read &= ~(1 << 3);
+  rivatnt->ddc_read |= rivatnt_read_edid(rivatnt) << 3;
+  break;
+  }
 #ifndef RELEASE_BUILD
   if(svga->crtcreg > 0x18)
     pclog("RIVA TNT Extended CRTC read %02X %04X:%08X\n", svga->crtcreg, CS, pc);
@@ -475,10 +525,10 @@ static uint8_t rivatnt_pci_read(int func, int addr, void *p)
 #endif
   switch (addr)
   {
-    case 0x00: ret = 0xd2; break; /*'nVidia'*/
-    case 0x01: ret = 0x12; break;
+    case 0x00: ret = 0xde; break; /*'nVidia'*/
+    case 0x01: ret = 0x10; break;
 
-    case 0x02: ret = 0x18; break; /*'RIVA TNT'*/
+    case 0x02: ret = 0x20; break; /*'RIVA TNT'*/
     case 0x03: ret = 0x00; break;
 
     case 0x04: ret = rivatnt->pci_regs[0x04] & 0x37; break;
@@ -634,7 +684,9 @@ static void *rivatnt_init()
   rivatnt_in, rivatnt_out,
   NULL, NULL);
 
-  rom_init(&rivatnt->bios_rom, "roms/rivatnt.bin", 0xc0000, 0x8000, 0x7fff, 0, MEM_MAPPING_EXTERNAL);
+  //rom_init(&rivatnt->bios_rom, "roms/rivatnt.bin", 0xc0000, 0x8000, 0x7fff, 0, MEM_MAPPING_EXTERNAL);
+  //TODO: Hack to get past EDID register polling in Linux.
+  rom_init(&rivatnt->bios_rom, "roms/riva128.bin", 0xc0000, 0x8000, 0x7fff, 0, MEM_MAPPING_EXTERNAL);
   if (PCI)
     mem_mapping_disable(&rivatnt->bios_rom.mapping);
 
@@ -666,11 +718,7 @@ static void *rivatnt_init()
   rivatnt->pci_regs[6] = 0;
   rivatnt->pci_regs[7] = 2;
 
-  //win9x drivers expect this.
-  rivatnt->pci_regs[0x2c] = 0xd2;
-  rivatnt->pci_regs[0x2d] = 0x12;
-  rivatnt->pci_regs[0x2e] = 0x00;
-  rivatnt->pci_regs[0x2f] = 0x03;
+  rivatnt->edid_addr = 0;
 
   pci_add(rivatnt_pci_read, rivatnt_pci_write, rivatnt);
 
